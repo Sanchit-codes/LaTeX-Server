@@ -1,0 +1,36 @@
+services:
+  latex-server:
+    build: .
+    image: latex-server:latest
+    container_name: latex-server
+    restart: unless-stopped
+    ports:
+      - "${PORT:-9180}:9180"
+    environment:
+      PORT: 9180
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE:-52428800}
+      COMPILATION_TIMEOUT: ${COMPILATION_TIMEOUT:-60000}
+      DOCKER_IMAGE: ${DOCKER_IMAGE:-texlive/texlive:latest}
+      DEFAULT_ENGINE: ${DEFAULT_ENGINE:-pdflatex}
+      DEFAULT_RUNS: ${DEFAULT_RUNS:-1}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-10}
+      # CRITICAL: must match the bind-mount path below so sibling Docker
+      # containers can find the temp files on the host filesystem.
+      WORKDIR_ROOT: /latex-workdirs
+    volumes:
+      # Mount Docker socket so the API server can spawn sibling LaTeX containers
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Shared workdir: files written here are visible to sibling Docker containers
+      # because they reference the HOST path /latex-workdirs (not a container-local path).
+      - /latex-workdirs:/latex-workdirs
+    # Running as root for Docker socket access.
+    # To harden: run `stat -c '%g' /var/run/docker.sock` on your server,
+    # then add `group_add: ["<GID>"]` here and switch to a non-root user in Dockerfile.
+
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9180/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
