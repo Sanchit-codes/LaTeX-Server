@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LaTeX Server — Compile .tex to PDF</title>
+  <meta name="description" content="Upload a .tex file or a ZIP project, configure options, and instantly download a compiled PDF." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Decorative Floating Nodes -->
+  <div class="floating-nodes" aria-hidden="true">
+    <div class="node node-1 node-primary">
+      <span class="node-icon">λ</span> <span class="node-label">\documentclass{article}</span>
+    </div>
+    <div class="node node-2">
+      <span class="node-icon">{}</span> <span class="node-label">\usepackage{amsmath}</span>
+    </div>
+    <div class="node node-3">
+      <span class="node-icon">▶</span> <span class="node-label">\begin{document}</span>
+    </div>
+    <div class="node node-4">
+      <span class="node-icon">∑</span> <span class="node-label">\maketitle</span>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon" aria-hidden="true">∂</span>
+      <span class="logo-text">Sanchit's Tools &mdash; <span class="logo-accent">LaTeX Server</span></span>
+    </div>
+    <div class="header-right">
+      <div id="health-badge" class="health-badge" aria-live="polite">
+        <span class="health-dot"></span>
+        <span class="health-label">Checking…</span>
+      </div>
+      <a href="https://github.com/Sanchit-codes" target="_blank" rel="noopener" class="github-link" aria-label="GitHub">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="hero" aria-labelledby="hero-heading">
+      <h1 id="hero-heading" class="hero-title">
+        Compile <span class="gradient-text">.tex</span> to PDF
+      </h1>
+      <p class="hero-subtitle">
+        Upload a single <code>.tex</code> file or a <code>.zip</code> project archive,
+        configure your engine, and get a PDF — instantly.
+      </p>
+    </section>
+
+    <!-- Upload Card -->
+    <div class="card" id="upload-card">
+
+      <!-- Drop Zone -->
+      <div
+        id="drop-zone"
+        class="drop-zone"
+        role="button"
+        tabindex="0"
+        aria-label="Drop zone for .tex or .zip files"
+        aria-describedby="drop-hint"
+      >
+        <div class="drop-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 4L24 32M24 4L14 14M24 4L34 14" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 36V40C6 41.1 6.9 42 8 42H40C41.1 42 42 41.1 42 40V36" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="drop-title">Drop your file here</p>
+        <p id="drop-hint" class="drop-hint">Supports <strong>.tex</strong> and <strong>.zip</strong> archives</p>
+        <button class="btn btn-secondary" id="browse-btn" type="button">Browse Files</button>
+        <input type="file" id="file-input" accept=".tex,.zip" aria-hidden="true" tabindex="-1" />
+      </div>
+
+      <!-- Selected file display -->
+      <div id="file-info" class="file-info hidden" aria-live="polite">
+        <div class="file-icon" aria-hidden="true">📄</div>
+        <div class="file-details">
+          <span class="file-name" id="file-name-display"></span>
+          <span class="file-size" id="file-size-display"></span>
+        </div>
+        <button class="btn-icon" id="clear-file-btn" aria-label="Remove selected file" title="Remove">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Options -->
+      <div class="options-grid">
+        <div class="form-group">
+          <label for="output-name" class="form-label">Output filename</label>
+          <input
+            type="text"
+            id="output-name"
+            name="outputName"
+            class="form-input"
+            placeholder="e.g. my-thesis (no .pdf)"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <span class="form-hint">Leave blank to use the uploaded filename</span>
+        </div>
+
+        <div class="form-group">
+          <label for="engine-select" class="form-label">LaTeX engine</label>
+          <div class="select-wrapper">
+            <select id="engine-select" name="engine" class="form-select">
+              <option value="pdflatex">pdflatex (default)</option>
+              <option value="xelatex">xelatex</option>
+              <option value="lualatex">lualatex</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="runs-select" class="form-label">Compilation passes</label>
+          <div class="select-wrapper">
+            <select id="runs-select" name="runs" class="form-select">
+              <option value="1">1 pass (default)</option>
+              <option value="2">2 passes (refs / TOC)</option>
+              <option value="3">3 passes (complex)</option>
+            </select>
+          </div>
+          <span class="form-hint">Use 2+ passes for documents with references or a table of contents</span>
+        </div>
+
+        <!-- ZIP-only: main file -->
+        <div class="form-group" id="main-file-group" style="display:none">
+          <label for="main-file-input" class="form-label">Main .tex file (inside ZIP)</label>
+          <input
+            type="text"
+            id="main-file-input"
+            name="mainFile"
+            class="form-input"
+            placeholder="e.g. main.tex or folder/main.tex"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <span class="form-hint">Leave blank to auto-detect (works when exactly one .tex file exists)</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn btn-primary" id="compile-btn" type="button" disabled>
+          <span class="btn-icon-left" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="5 3 19 12 5 21 5 3"/>
+            </svg>
+          </span>
+          Compile to PDF
+        </button>
+        <button class="btn btn-secondary" id="view-log-btn" type="button" title="View Compilation Log">
+          <span class="btn-icon-left" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+            </svg>
+          </span>
+          View Log
+        </button>
+      </div>
+
+      <!-- Progress -->
+      <div id="progress-section" class="progress-section hidden" aria-live="polite" aria-atomic="true">
+        <div class="spinner" aria-hidden="true">
+          <div class="spinner-ring"></div>
+        </div>
+        <div class="progress-text">
+          <span class="progress-title" id="progress-title">Compiling…</span>
+          <span class="progress-sub" id="progress-sub">This may take up to 60 seconds</span>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div id="result-section" class="result-section hidden" aria-live="polite">
+        <div class="result-success" id="result-success">
+          <div class="result-icon success-icon" aria-hidden="true">✓</div>
+          <div class="result-info">
+            <span class="result-title">Compilation successful!</span>
+            <span class="result-sub" id="result-filename"></span>
+          </div>
+          <a class="btn btn-download" id="download-btn" href="#" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download PDF
+          </a>
+        </div>
+
+        <div class="result-error" id="result-error" style="display:none">
+          <div class="result-icon error-icon" aria-hidden="true">✕</div>
+          <div class="result-info">
+            <span class="result-title" id="error-title">Compilation failed</span>
+            <span class="result-sub" id="error-message"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LaTeX Log Side Panel -->
+      <aside id="log-panel" class="log-panel" aria-labelledby="log-panel-title" aria-hidden="true">
+        <div class="log-panel-header">
+          <div class="log-panel-title-row">
+            <div class="log-panel-indicator" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
+              </svg>
+            </div>
+            <h2 id="log-panel-title" class="log-panel-title">Compilation Log</h2>
+          </div>
+          <div class="log-panel-actions">
+            <button class="btn-icon" id="copy-log-btn" aria-label="Copy log" title="Copy log">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </button>
+            <button class="btn-icon" id="close-log-btn" aria-label="Close log panel" title="Close">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="log-panel-body">
+          <pre class="log-content" id="log-content" tabindex="0">No logs available yet. Compile a document to see the output here.</pre>
+        </div>
+        <div class="log-panel-footer">
+          <span class="log-panel-hint">Scroll to see full output</span>
+        </div>
+      </aside>
+
+    </div><!-- /.card -->
+
+    <!-- API Reference -->
+    <section class="api-section card" aria-labelledby="api-heading">
+      <h2 id="api-heading" class="section-title">
+        <span class="gradient-text">API</span> Reference
+      </h2>
+
+      <div class="api-endpoints">
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method-badge method-post">POST</span>
+            <code class="endpoint-path">/compile</code>
+            <span class="endpoint-desc">Single .tex file</span>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span>curl example</span>
+              <button class="copy-btn" data-target="curl-single" aria-label="Copy code">Copy</button>
+            </div>
+            <pre id="curl-single" class="code-content">curl -X POST \
+  -F "file=@report.tex" \
+  -F "outputName=my-report" \
+  -F "engine=pdflatex" \
+  -F "runs=2" \
+  http://localhost:3000/compile \
+  -o my-report.pdf</pre>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method-badge method-post">POST</span>
+            <code class="endpoint-path">/compile/zip</code>
+            <span class="endpoint-desc">ZIP project archive</span>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span>curl example</span>
+              <button class="copy-btn" data-target="curl-zip" aria-label="Copy code">Copy</button>
+            </div>
+            <pre id="curl-zip" class="code-content">curl -X POST \
+  -F "file=@project.zip" \
+  -F "mainFile=src/main.tex" \
+  -F "outputName=thesis" \
+  -F "engine=xelatex" \
+  -F "runs=2" \
+  http://localhost:3000/compile/zip \
+  -o thesis.pdf</pre>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method-badge method-get">GET</span>
+            <code class="endpoint-path">/health</code>
+            <span class="endpoint-desc">Service health check</span>
+          </div>
+          <div class="code-block">
+            <div class="code-header">
+              <span>response</span>
+            </div>
+            <pre class="code-content">{ "status": "ok", "latex": true, "dockerImage": "texlive/texlive:latest" }</pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Parameters table -->
+      <h3 class="params-heading">Parameters</h3>
+      <div class="table-wrapper">
+        <table class="params-table" aria-label="API parameters">
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Required</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>file</code></td>
+              <td>file</td>
+              <td><span class="badge-required">Yes</span></td>
+              <td>.tex or .zip file upload</td>
+            </tr>
+            <tr>
+              <td><code>outputName</code></td>
+              <td>string</td>
+              <td>No</td>
+              <td>Output PDF filename (without .pdf). Defaults to input filename.</td>
+            </tr>
+            <tr>
+              <td><code>engine</code></td>
+              <td>string</td>
+              <td>No</td>
+              <td><code>pdflatex</code> | <code>xelatex</code> | <code>lualatex</code>. Default: pdflatex</td>
+            </tr>
+            <tr>
+              <td><code>runs</code></td>
+              <td>number</td>
+              <td>No</td>
+              <td>Compilation passes: 1–3. Use 2+ for refs/TOC. Default: 1</td>
+            </tr>
+            <tr>
+              <td><code>mainFile</code></td>
+              <td>string</td>
+              <td>ZIP only</td>
+              <td>Relative path to main .tex inside archive. Auto-detected if only one .tex exists.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Sanchit's Tools &mdash; LaTeX Server &middot; Powered by <a href="https://tug.org/texlive/" target="_blank" rel="noopener">TeX Live</a> in Docker &middot; <a href="https://github.com/Sanchit-codes" target="_blank" rel="noopener">github.com/Sanchit-codes</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
