@@ -3,7 +3,9 @@
 A modern, fast, and secure REST API to compile `.tex` files and `.zip` archives into PDFs using Docker-isolated LaTeX engines (`pdflatex`, `xelatex`, `lualatex`).
 
 <!-- REPLACE_WITH_YOUR_IMAGE_PATH -->
-![LaTeX Server Web Interface](./preview.png)
+
+![LaTeX Server Web Interface](https://i.ibb.co/ycGTHnVK/Screenshot-2026-05-28-at-1-46-09-PM.png)
+
 <!-- ☝️ Add your demo screenshot or GIF above ☝️ -->
 
 ## ✨ Features
@@ -39,11 +41,13 @@ Visit `http://localhost:9180` in your browser to access the web interface!
 ## 📖 API Usage
 
 ### 1. Compile a single `.tex` file
+
 ```bash
 curl -X POST -F "file=@main.tex" -F "engine=pdflatex" http://localhost:9180/compile -o output.pdf
 ```
 
 ### 2. Compile a multi-file `.zip` project
+
 Upload a ZIP containing your `.tex` files, images, and bibliography.
 
 ```bash
@@ -55,6 +59,7 @@ curl -X POST \
 ```
 
 ### Available Options (Form Data)
+
 - `file` (Required): The `.tex` or `.zip` file.
 - `engine` (Optional): `pdflatex` (default), `xelatex`, or `lualatex`.
 - `runs` (Optional): `1` (default), `2`, or `3`. Needed for generating Tables of Contents and bibliographies.
@@ -76,4 +81,5 @@ RATE_LIMIT_MAX=10
 ```
 
 ## 📝 License
+
 MIT License. Created by [Sanchit-codes](https://github.com/Sanchit-codes).
